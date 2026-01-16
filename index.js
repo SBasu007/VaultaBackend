@@ -1,3 +1,4 @@
+
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
@@ -29,7 +30,51 @@ app.post('/insert', async (req, res) => {
 
   res.status(201).json({ data });
 });
+app.post('/update-link', async (req, res) => {
+  const { id } = req.body;
+  if (!id) {
+    return res.status(400).json({ error: 'Missing id field' });
+  }
 
+  // Fetch the current count
+  const { data: currentData, error: fetchError } = await supabase
+    .from('links')
+    .select('clicks')
+    .eq('id', id)
+    .single();
+
+  if (fetchError) {
+    return res.status(500).json({ error: fetchError.message });
+  }
+
+  const newCount = (currentData?.clicks || 0) + 1;
+
+  // Update the count
+  const { data, error } = await supabase
+    .from('links')
+    .update({ clicks: newCount })
+    .eq('id', id)
+    .select();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.status(200).json({ data });
+});
+app.get('/top-links', async (req, res) => {
+  const { data, error } = await supabase
+    .from('links')
+    .select('*')
+    .order('clicks', { ascending: false })
+    .limit(3);
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.status(200).json({ data });
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
