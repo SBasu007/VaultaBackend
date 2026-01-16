@@ -63,9 +63,14 @@ app.post('/update-link', async (req, res) => {
   res.status(200).json({ data });
 });
 app.get('/top-links', async (req, res) => {
+  const{user_id}=req.body;
+  if (!user_id) {
+    return res.status(400).json({ error: 'Missing user_id field' });
+  }
   const { data, error } = await supabase
     .from('links')
     .select('*')
+    .eq('user_id', user_id)
     .order('clicks', { ascending: false })
     .limit(3);
 
