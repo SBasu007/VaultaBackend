@@ -81,7 +81,7 @@ app.get('/top-links', async (req, res) => {
   res.status(200).json({ data });
 });
 app.get('/all-links', async (req, res) => {
-  const{user_id}=req.body;
+  const{user_id}=req.query;
   if (!user_id) {
     return res.status(400).json({ error: 'Missing user_id field' });
   }
