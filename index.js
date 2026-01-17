@@ -80,6 +80,22 @@ app.get('/top-links', async (req, res) => {
 
   res.status(200).json({ data });
 });
+app.get('/all-links', async (req, res) => {
+  const{user_id}=req.body;
+  if (!user_id) {
+    return res.status(400).json({ error: 'Missing user_id field' });
+  }
+  const { data, error } = await supabase
+    .from('links')
+    .select('*')
+    .eq('user_id', user_id)
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.status(200).json({ data });
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
